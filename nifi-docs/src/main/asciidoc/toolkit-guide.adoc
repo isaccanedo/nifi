@@ -1,0 +1,507 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+= Apache NiFi Toolkit Guide
+Apache NiFi Team <dev@nifi.apache.org>
+:homepage: http://nifi.apache.org
+:linkattrs:
+
+== Overview
+The NiFi Toolkit contains several command line utilities to setup and support NiFi in standalone and clustered environments.  The utilities include:
+
+* CLI -- The `cli` tool enables administrators to interact with NiFi and NiFi Registry instances to automate tasks such as deploying versioned flows and managing process groups and cluster nodes.
+
+The utilities are executed with scripts found in the `bin` folder of your NiFi Toolkit installation.
+
+NOTE: The NiFi Toolkit is downloaded separately from NiFi (see the link:https://nifi.apache.org/download.html[Apache NiFi Downloads^] page).
+
+=== Prerequisites for Running in a Secure Environment
+For secured nodes and clusters, two policies should be configured in advance:
+
+* Access the controller – A user that will have access to these utilities should be authorized in NiFi by creating an “access the controller” policy (`/controller`) with both view and modify rights
+* Proxy user request – If not previously set, node’s identity (the DN value of the node’s certificate) should be authorized to proxy requests on behalf of a user
+
+When executing either the Notify or Node Manager tools in a secured environment the `proxyDN` flag option should be used in order to properly identify the user that was authorized to execute these commands. In non-secure environments, or if running the status operation on the Node Manager tool, the flag is ignored.
+
+[[nifi_CLI]]
+== NiFi CLI
+This tool offers a CLI focused on interacting with NiFi and NiFi Registry in order to automate tasks, such as deploying flows from a NIFi Registy to a NiFi instance or managing process groups and cluster nodes.
+
+=== Usage
+The CLI toolkit can be executed in standalone mode to execute a single command, or interactive mode to enter an interactive shell.
+
+To execute a single command:
+
+ ./bin/cli.sh <command> <args>
+
+To launch the interactive shell:
+
+ ./bin/cli.sh
+
+To show help:
+
+ ./bin/cli.sh -h
+
+The following are available commands:
+
+ demo quick-import
+ nifi current-user
+ nifi cluster-summary
+ nifi connect-node
+ nifi delete-node
+ nifi disconnect-node
+ nifi get-root-id
+ nifi get-node
+ nifi get-nodes
+ nifi offload-node
+ nifi list-reg-clients
+ nifi create-reg-client
+ nifi update-reg-client
+ nifi get-reg-client-id
+ nifi pg-import
+ nifi pg-connect
+ nifi pg-start
+ nifi pg-stop
+ nifi pg-create
+ nifi pg-get-version
+ nifi pg-stop-version-control
+ nifi pg-change-version
+ nifi pg-change-all-versions
+ nifi pg-get-all-versions
+ nifi pg-list
+ nifi pg-status
+ nifi pg-get-services
+ nifi pg-create-service
+ nifi pg-enable-services
+ nifi pg-disable-services
+ nifi pg-get-param-context
+ nifi pg-set-param-context
+ nifi pg-replace
+ nifi pg-export
+ nifi get-services
+ nifi get-service
+ nifi create-service
+ nifi enable-services
+ nifi disable-services
+ nifi get-reporting-tasks
+ nifi get-reporting-task
+ nifi create-reporting-task
+ nifi delete-reporting-task
+ nifi start-reporting-tasks
+ nifi stop-reporting-tasks
+ nifi export-reporting-tasks
+ nifi export-reporting-task
+ nifi import-reporting-tasks
+ nifi create-flow-analysis-rule
+ nifi get-flow-analysis-rules
+ nifi get-flow-analysis-rule
+ nifi enable-flow-analysis-rules
+ nifi disable-flow-analysis-rules
+ nifi delete-flow-analysis-rule
+ nifi list-users
+ nifi create-user
+ nifi list-user-groups
+ nifi create-user-group
+ nifi update-user-group
+ nifi get-policy
+ nifi update-policy
+ nifi list-param-contexts
+ nifi get-param-context
+ nifi create-param-context
+ nifi delete-param-context
+ nifi set-inherited-param-contexts
+ nifi remove-inherited-param-contexts
+ nifi set-param
+ nifi delete-param
+ nifi export-param-context
+ nifi import-param-context
+ nifi merge-param-context
+ nifi list-param-providers
+ nifi get-param-provider
+ nifi create-param-provider
+ nifi delete-param-provider
+ nifi fetch-params
+ nifi set-param-provider-property
+ nifi get-access-token
+ nifi get-access-token-spnego
+ nifi logout-access-token
+ nifi get-controller-configuration
+ nifi update-controller-configuration
+ nifi change-version-processor
+ registry current-user
+ registry list-buckets
+ registry create-bucket
+ registry delete-bucket
+ registry list-flows
+ registry create-flow
+ registry delete-flow
+ registry list-flow-versions
+ registry export-flow-version
+ registry import-flow-version
+ registry sync-flow-versions
+ registry transfer-flow-version
+ registry diff-flow-versions
+ registry upload-bundle
+ registry upload-bundles
+ registry list-bundle-groups
+ registry list-bundle-artifacts
+ registry list-bundle-versions
+ registry download-bundle
+ registry get-bundle-checksum
+ registry list-extension-tags
+ registry list-extensions
+ registry list-users
+ registry create-user
+ registry update-user
+ registry list-user-groups
+ registry create-user-group
+ registry update-user-group
+ registry get-policy
+ registry update-policy
+ registry update-bucket-policy
+ registry get-access-token
+ registry get-access-token-spnego
+ registry logout-access-token
+ registry export-all-flows
+ registry import-all-flows
+ session keys
+ session show
+ session get
+ session set
+ session remove
+ session clear
+ exit
+ help
+
+To display extensive help for a specific command:
+
+ ./bin/cli.sh <command> -h
+
+=== Property/Argument Handling
+Most commands will require specifying a baseUrl for the NiFi or NiFi Registry instance.
+
+An example command to list the buckets in a NiFi Registry instance would be the following:
+
+ ./bin/cli.sh registry list-buckets -u http://localhost:18080
+
+In order to avoid specifying the URL (and possibly other optional arguments for TLS) on every command, you can define a properties file containing the repetitive arguments.
+
+An example properties file for a local NiFi Registry instance would look like the following:
+
+[source]
+----
+ baseUrl=http://localhost:18080
+ keystore=
+ keystoreType=
+ keystorePasswd=
+ keyPasswd=
+ truststore=
+ truststoreType=
+ truststorePasswd=
+ proxiedEntity=
+----
+
+This properties file can then be used on a command by specifying `-p`:
+
+ ./bin/cli.sh registry list-buckets -p /path/to/local-nifi-registry.properties
+
+You could then maintain a properties file for each environment you plan to interact with, such as Dev, QA, and Prod.
+
+In addition to specifying a properties file on each command, you can setup a default properties file to be used in the event that no properties file is specified.
+
+The default properties file is specified using the `session` concept, which persists to the users home directory in a file called _.nifi-cli.config_.
+
+An example of setting the default property files for NiFi would be the following:
+
+ ./bin/cli.sh session set nifi.props /path/to/local-nifi.properties
+
+An example for NiFi Registry would be the following:
+
+ ./bin/cli.sh session set nifi.reg.props /path/to/local-nifi-registry.properties
+
+This will write the above properties into the _.nifi-cli.config_ in the user's home directory and will allow commands to be executed without specifying a URL or properties file:
+
+ ./bin/cli.sh registry list-buckets
+
+The above command will now use the `baseUrl` from _local-nifi-registry.properties_.
+
+The order of resolving an argument is the following:
+
+* A direct argument overrides anything in a properties file or session
+* A properties file argument (`-p`) overrides the session
+* The session is used when nothing else is specified
+
+=== Security Configuration
+If NiFi and NiFi Registry are secured, then commands executed from the CLI will need to make a TLS connection and authenticate as a user with permissions to perform the desired action.
+
+Currently the CLI supports authenticating with a client certificate and an optional proxied-entity. A common scenario would be running the CLI from one of the nodes where NiFi or NiFi Registry is installed, which allows the CLI to use the same keystore and truststore as the NiFi/NiFi Registry instance.
+
+The security configuration can be specified per-command, or in one of the properties files described in the previous section.
+
+The examples below are for NiFi Registry, but the same concept applies for NiFi commands.
+
+==== Example - Secure NiFi Registry without Proxied-Entity
+Assuming we have a keystore containing the certificate for "CN=user1, OU=NIFI", an example properties file would be the following:
+
+[source]
+----
+ baseUrl=https://localhost:18443
+ keystore=/path/to/keystore.jks
+ keystoreType=JKS
+ keystorePasswd=changeme
+ keyPasswd=changeme
+ truststore=/path/to/truststore.jks
+ truststoreType=JKS
+ truststorePasswd=changeme
+----
+
+In this example, commands will be executed as "CN=user1, OU=NIFI". This user would need to be a user in NiFi Registry, and commands accessing buckets would be restricted to buckets this user has access to.
+
+==== Example - Secure NiFi Registry with Proxied-Entity
+Assuming we have access to the keystore of NiFi Registry itself, and that NiFi Registry is also configured to allow Kerberos or LDAP authentication, an example properties file would be the following:
+
+[source]
+----
+ baseUrl=https://localhost:18443
+ keystore=/path/to/keystore.jks
+ keystoreType=JKS
+ keystorePasswd=changeme
+ keyPasswd=changeme
+ truststore=/path/to/truststore.jks
+ truststoreType=JKS
+ truststorePasswd=changeme
+ proxiedEntity=user1@NIFI.COM
+----
+
+In this example, the certificate in _keystore.jks_ would be for the NiFi Registry server, for example "CN=localhost, OU=NIFI". This identity would need to be defined as a user in NiFi Registry and given permissions to 'Proxy'.
+
+"CN=localhost, OU=NIFI" would be proxying commands to be executed as user1@NIFI.COM.
+
+=== Interactive Usage
+In interactive mode the tab key can be used to perform auto-completion.
+
+For example, typing tab at an empty prompt should display possible commands for the first argument:
+
+ #>
+ demo       exit       help       nifi       registry   session
+
+Typing "nifi " and then a tab will show the sub-commands for NiFi:
+
+ #> nifi
+ change-version-processor          delete-flow-analysis-rule         export-reporting-task             get-policy                        list-user-groups                  pg-export                         pg-stop-version-control
+ cluster-summary                   delete-node                       export-reporting-tasks            get-reg-client-id                 list-users                        pg-get-all-versions               remove-inherited-param-contexts
+ connect-node                      delete-param                      fetch-params                      get-reporting-task                logout-access-token               pg-get-param-context              set-inherited-param-contexts
+ create-flow-analysis-rule         delete-param-context              get-access-token                  get-reporting-tasks               merge-param-context               pg-get-services                   set-param
+ create-param-context              delete-param-provider             get-access-token-spnego           get-root-id                       offload-node                      pg-get-version                    set-param-provider-property
+ create-param-provider             delete-reporting-task             get-controller-configuration      get-service                       pg-change-all-versions            pg-import                         start-reporting-tasks
+ create-reg-client                 disable-flow-analysis-rules       get-flow-analysis-rule            get-services                      pg-change-version                 pg-list                           stop-reporting-tasks
+ create-reporting-task             disable-services                  get-flow-analysis-rules           import-param-context              pg-connect                        pg-replace                        update-controller-configuration
+ create-service                    disconnect-node                   get-node                          import-reporting-tasks            pg-create                         pg-set-param-context              update-policy
+ create-user                       enable-flow-analysis-rules        get-nodes                         list-param-contexts               pg-create-service                 pg-start                          update-reg-client
+ create-user-group                 enable-services                   get-param-context                 list-param-providers              pg-disable-services               pg-status                         update-user-group
+ current-user                      export-param-context              get-param-provider                list-reg-clients                  pg-enable-services                pg-stop
+
+Arguments that represent a path to a file, such as `-p` or when setting a properties file in the session, will auto-complete the path being typed:
+
+ #> session set nifi.props /tmp/
+ dir1/   dir2/   dir3/
+
+=== Output
+Most commands support the ability to specify an `--outputType` argument, or `-ot` for short.
+
+Currently the output type may be simple or json.
+
+The default output type in interactive mode is simple, and the default output type in standalone mode is json.
+
+Example of simple output for `list-buckets`:
+
+ #> registry list-buckets -ot simple
+ My Bucket - 3c7b7467-0012-4d8f-a918-6aa42b6b9d39
+
+Example of json output for `list-buckets`:
+
+ #> registry list-buckets -ot json
+ [ {
+   "identifier" : "3c7b7467-0012-4d8f-a918-6aa42b6b9d39",
+   "name" : "My Bucket",
+   "createdTimestamp" : 1516718733854,
+   "permissions" : {
+     "canRead" : true,
+     "canWrite" : true,
+     "canDelete" : true
+   },
+   "link" : {
+     "params" : {
+       "rel" : "self"
+     },
+     "href" : "buckets/3c7b7467-0012-4d8f-a918-6aa42b6b9d39"
+   }
+ } ]
+
+=== Back-Referencing
+When using the interactive CLI, a common scenario will be using an id from a previous result as the input to the next command. Back-referencing provides a shortcut for referencing a result from the previous command via a positional reference.
+
+NOTE: Not every command produces back-references. To determine if a command supports back-referencing, check the usage.
+
+ #> registry list-buckets help
+ Lists the buckets that the current user has access to.
+ PRODUCES BACK-REFERENCES
+
+A common scenario for utilizing back-references would be the following:
+
+1. User starts by exploring the available buckets in a registry instance
+
+   #> registry list-buckets
+   #   Name           Id                                     Description
+   -   ------------   ------------------------------------   -----------
+   1   My Bucket      3c7b7467-0012-4d8f-a918-6aa42b6b9d39   (empty)
+   2   Other Bucket   175fb557-43a2-4abb-871f-81a354f47bc2   (empty)
+
+2. User then views the flows in one of the buckets using a back-reference to the bucket id from the previous result in position 1
+
+   #> registry list-flows -b &1
+   Using a positional back-reference for 'My Bucket'
+   #   Name      Id                                     Description
+   -   -------   ------------------------------------   ----------------
+   1   My Flow   06acb207-d2f1-447f-85ed-9b8672fe6d30   This is my flow.
+
+3. User then views the version of the flow using a back-reference to the flow id from the previous result in position 1
+
+   #> registry list-flow-versions -f &1
+   Using a positional back-reference for 'My Flow'
+   Ver   Date                         Author                     Message
+   ---   --------------------------   ------------------------   -------------------------------------
+   1     Tue, Jan 23 2018 09:48 EST   anonymous                  This is the first version of my flow.
+
+4. User deploys version 1 of the flow using back-references to the bucket and flow id from step 2
+
+   #> nifi pg-import -b &1 -f &1 -fv 1
+   Using a positional back-reference for 'My Bucket'
+   Using a positional back-reference for 'My Flow'
+   9bd157d4-0161-1000-b946-c1f9b1832efd
+
+The reason step 4 was able to reference the results from step 2, is because the `list-flow-versions` command in step 3 does not produce back-references, so the results from step 2 are still available.
+
+=== Adding Commands
+To add a NiFi command, create a new class that extends `AbstractNiFiCommand`:
+
+[source]
+----
+public class MyCommand extends AbstractNiFiCommand {
+
+  public MyCommand() {
+      super("my-command");
+  }
+
+  @Override
+  protected void doExecute(NiFiClient client, Properties properties)
+          throws NiFiClientException, IOException, MissingOptionException, CommandException {
+      // TODO implement
+  }
+
+  @Override
+  public String getDescription() {
+      return "This is my new command";
+  }
+}
+----
+
+Add the new command to `NiFiCommandGroup`:
+
+[source]
+----
+commands.add(new MyCommand());
+----
+
+To add a NiFi Registry command, perform the same steps, but extend from `AbstractNiFiRegistryCommand`, and add the command to `NiFiRegistryCommandGroup`.
+
+[export_import_all_flows]
+=== Export All Flows
+You can use the `export-all-flows` to perform the following tasks:
+
+* List all the buckets
+* For each bucket, list all flows
+* For each flow, list all versions
+* Export each version into a provided directory
+
+Running the command requires an `--outputDirectory` parameter. The directory must exist and permissions correctly set.
+
+=== Import All Flows
+You can use the `import-all-flows` to perform the following tasks:
+
+* List all files, representing a flow version, from a directory created by export-all-flows
+* Create all the corresponding buckets
+* Create all the corresponding flows
+* Import all the corresponding flow versions
+
+Running the command requires 2 parameters:
+
+* `--input` parameter represents a directory to read files from
+* `--skipExisting` optional parameter, configuring how to handle existing flow and flow version creation.
+If provided the flow and flow version creation will be skipped regardless of there are missing flow versions.
+If not provided the missing flow versions will be created.
+
+=== Usage
+The input source for an import-all-flows command must be created by an export-all-flows command.
+To avoid migration conflicts, no modification should be performed in the NiFi Registry during this activity.
+Buckets and flows with the same name are considered equal.
+
+* Export all flow versions:
+
+ ./bin/cli.sh registry export-all-flows -u http://localhost:18080 --outputDirectory "/my_dir/flow_exports"
+
+* Import all flow versions:
+
+ ./bin/cli.sh registry import-all-flows -u http://localhost:18080 --input "/my_dir/flow_exports" --skipExisting
+
+=== Expected behaviour
+=== Use case 1: reconfiguring an existing NiFi Registry
+
+NiFi is connecting to NiFi Registry, the NiFi Registry does not change, only its configuration.
+All the data will be created.
+
+1. Export versions:
+
+ ./bin/cli.sh registry export-all-flows -u http://localhost:18080 --outputDirectory "/my_dir/flow_exports"
+
+2. Stop registry
+
+3. Switch provider
+
+4. Start registry
+
+5. Import versions
+
+ ./bin/cli.sh registry import-all-flows -u http://localhost:18080 --input "/my_dir/flow_exports" --skipExisting
+
+
+=== Use case 2: data replication
+
+NiFi_1 is connecting to NiFi Registry_1 and NiFi_2 is connecting to NiFi Registry_2.
+
+For disaster recovery purposes the data from NiFi Registry_1 needs to be periodically replicated to NiFi Registry_2 via a scheduled job.
+
+The initial version of Nifi Registry_2 needs to be created by this tool.
+
+The missing buckets, flows and versions will be created. If bucket and flow exist the missing versions will be created.
+
+1. Export versions:
+
+ ./bin/cli.sh registry export-all-flows -u http://nifi-registry-1:18080 --outputDirectory "/my_dir/flow_exports"
+
+2. Import versions:
+
+ ./bin/cli.sh registry import-all-flows -u http://nifi-registry-2:18080 --input "/my_dir/flow_exports"

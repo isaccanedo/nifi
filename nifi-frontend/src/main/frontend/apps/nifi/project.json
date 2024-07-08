@@ -1,0 +1,134 @@
+{
+    "name": "nifi",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "generators": {
+        "@schematics/angular:component": {
+            "style": "scss"
+        }
+    },
+    "sourceRoot": "apps/nifi/src",
+    "prefix": "app",
+    "targets": {
+        "build": {
+            "executor": "@nx/angular:application",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/nifi",
+                "index": "apps/nifi/src/index.html",
+                "browser": "apps/nifi/src/main.ts",
+                "polyfills": ["zone.js"],
+                "tsConfig": "apps/nifi/tsconfig.app.json",
+                "inlineStyleLanguage": "scss",
+                "assets": [
+                    {
+                        "glob": "**/*.svg",
+                        "input": "libs/shared/src/assets/",
+                        "output": "./assets"
+                    }
+                ],
+                "styles": ["apps/nifi/src/styles.scss"],
+                "stylePreprocessorOptions": {
+                    "includePaths": [""]
+                },
+                "scripts": [],
+                "allowedCommonJsDependencies": ["codemirror"],
+                "preserveSymlinks": true
+            },
+            "configurations": {
+                "production": {
+                    "budgets": [
+                        {
+                            "type": "initial",
+                            "maximumWarning": "2mb",
+                            "maximumError": "3mb"
+                        }
+                    ],
+                    "outputHashing": "all",
+                    "optimization": true
+                },
+                "development": {
+                    "optimization": false,
+                    "extractLicenses": false,
+                    "sourceMap": true,
+                    "preserveSymlinks": true,
+                    "namedChunks": true,
+                    "outputHashing": "none",
+                    "assets": [
+                        {
+                            "glob": "**/*.svg",
+                            "input": "libs/shared/src/assets/",
+                            "output": "./assets"
+                        }
+                    ],
+                    "fileReplacements": [
+                        {
+                            "replace": "apps/nifi/src/environments/environment.ts",
+                            "with": "apps/nifi/src/environments/environment.development.ts"
+                        }
+                    ]
+                }
+            },
+            "defaultConfiguration": "production"
+        },
+        "serve": {
+            "executor": "@nx/angular:dev-server",
+            "options": {
+                "proxyConfig": "apps/nifi/proxy.config.mjs",
+                "buildTarget": "nifi:build"
+            },
+            "configurations": {
+                "production": {
+                    "buildTarget": "nifi:build:production"
+                },
+                "development": {
+                    "buildTarget": "nifi:build:development",
+                    "servePath": "/nifi"
+                }
+            },
+            "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+            "executor": "@angular-devkit/build-angular:extract-i18n",
+            "options": {
+                "buildTarget": "nifi:build"
+            }
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "options": {
+                "jestConfig": "apps/nifi/jest.config.ts"
+            },
+            "configurations": {
+                "ci": {
+                    "ci": true,
+                    "codeCoverage": true
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": ["{options.outputFile}"]
+        },
+        "lint:fix": {
+            "executor": "@nx/eslint:lint",
+            "options": {
+                "fix": true
+            },
+            "outputs": ["{options.outputFile}"]
+        },
+        "prettier": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "npm run prettier"
+            }
+        },
+        "prettier:format": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "npm run prettier-format"
+            }
+        }
+    }
+}

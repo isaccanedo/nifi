@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.apache.nifi</groupId>
+        <artifactId>nifi-update-attribute-bundle</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>nifi-update-attribute-ui</artifactId>
+    <packaging>war</packaging>
+    <properties>
+        <frontend.dependency.configs>${basedir}/src/main/frontend</frontend.dependency.configs>
+        <frontend.working.dir>${project.build.directory}/frontend-working-directory</frontend.working.dir>
+        <frontend.assets>${project.build.directory}/${project.build.finalName}/assets</frontend.assets>
+    </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-client-side-deps</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${frontend.assets}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${frontend.working.dir}/node_modules</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <!-- font awesome -->
+                                        <include>font-awesome/css/**/*</include>
+                                        <include>font-awesome/fonts/**/*</include>
+                                        <include>font-awesome/README.md</include>
+                                        <!-- jquery -->
+                                        <include>jquery/dist/jquery.min*</include>
+                                        <include>jquery/LICENSE.txt</include>
+                                        <!-- jquery ui -->
+                                        <include>jquery-ui-dist/jquery-ui.min.js</include>
+                                        <include>jquery-ui-dist/jquery-ui.min.css</include>
+                                        <include>jquery-ui-dist/images/**/*</include>
+                                        <include>jquery-ui-dist/LICENSE.txt</include>
+                                        <!-- reset.css -->
+                                        <include>reset.css/reset.css</include>
+                                        <include>reset.css/README.md</include>
+                                        <!-- qtip2 -->
+                                        <include>qtip2/dist/*.css</include>
+                                        <include>qtip2/dist/jquery.qtip.min*</include>
+                                        <include>qtip2/LICENSE</include>
+                                        <!-- JSON2 -->
+                                        <include>JSON2/json2.js</include>
+                                        <!-- slickgrid -->
+                                        <include>slickgrid/slick.core.js</include>
+                                        <include>slickgrid/slick.dataview.js</include>
+                                        <include>slickgrid/slick.editors.js</include>
+                                        <include>slickgrid/slick.formatters.js</include>
+                                        <include>slickgrid/slick.grid.js</include>
+                                        <include>slickgrid/plugins/slick.autotooltips.js</include>
+                                        <include>slickgrid/plugins/slick.cellrangedecorator.js</include>
+                                        <include>slickgrid/plugins/slick.cellrangeselector.js</include>
+                                        <include>slickgrid/plugins/slick.cellselectionmodel.js</include>
+                                        <include>slickgrid/plugins/slick.rowselectionmodel.js</include>
+                                        <include>slickgrid/lib/jquery.event.drag-2.3.0.js</include>
+                                        <include>slickgrid/slick.grid.css</include>
+                                        <include>slickgrid/images/collapse.gif</include>
+                                        <include>slickgrid/images/expand.gif</include>
+                                        <include>slickgrid/MIT-LICENSE.txt</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-package-json</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${frontend.working.dir}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${frontend.dependency.configs}</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>package.json</include>
+                                        <include>package-lock.json</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend.mvn.plugin.version}</version>
+                <configuration>
+                    <installDirectory>${frontend.working.dir}</installDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-node-and-npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <nodeVersion>${node.version}</nodeVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run ci</arguments>
+                            <workingDirectory>${frontend.working.dir}</workingDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/webapp/META-INF</directory>
+                            <targetPath>META-INF</targetPath>
+                            <includes>
+                                <include>nifi-processor-configuration</include>
+                            </includes>
+                            <filtering>true</filtering>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes combine.children="append">
+                        <exclude>src/main/frontend/package.json</exclude>
+                        <exclude>src/main/frontend/package-lock.json</exclude>
+                        <exclude>src/main/webapp/js/codemirror/</exclude>
+                        <exclude>src/main/webapp/fonts/**/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.nifi</groupId>
+            <artifactId>nifi-update-attribute-model</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.nifi</groupId>
+            <artifactId>nifi-framework-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.nifi</groupId>
+            <artifactId>nifi-custom-ui-utilities</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.nifi</groupId>
+            <artifactId>nifi-expression-language</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.nifi</groupId>
+            <artifactId>nifi-parameter</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+    </dependencies>
+</project>

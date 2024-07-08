@@ -1,0 +1,202 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<component>
+    <dependencySets>
+        <!-- Write out the bootstrap lib component to its own dir -->
+        <dependencySet>
+            <scope>runtime</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>lib/bootstrap</outputDirectory>
+            <directoryMode>0770</directoryMode>
+            <fileMode>0664</fileMode>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>*:nifi-bootstrap</include>
+                <include>*:slf4j-api</include>
+                <include>*:logback-classic</include>
+                <include>*:logback-core</include>
+                <include>*:commons-lang3</include>
+                <include>*:nifi-api</include>
+                <include>*:nifi-property-protection-api</include>
+                <include>*:nifi-per-process-group-logging</include>
+                <include>*:nifi-single-user-utils</include>
+                <include>*:nifi-flow-encryptor</include>
+            </includes>
+        </dependencySet>
+
+        <!-- Write out the AspectJ library to its own dir -->
+        <!-- The AspectJ library needed by the Java Agent used for native library loading. It does not need to be on the classpath (see bootstrap.conf) -->
+        <dependencySet>
+            <scope>runtime</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>lib/aspectj</outputDirectory>
+            <directoryMode>0770</directoryMode>
+            <fileMode>0664</fileMode>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>org.aspectj:aspectjweaver</include>
+            </includes>
+        </dependencySet>
+
+        <!-- Write out the conf directory contents -->
+        <dependencySet>
+            <scope>runtime</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>./</outputDirectory>
+            <directoryMode>0770</directoryMode>
+            <fileMode>0664</fileMode>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>*:nifi-resources</include>
+            </includes>
+            <unpack>true</unpack>
+            <unpackOptions>
+                <filtered>true</filtered>
+                <includes>
+                    <include>conf/*</include>
+                </includes>
+            </unpackOptions>
+        </dependencySet>
+
+        <!-- Write out the bin directory contents -->
+        <dependencySet>
+            <scope>runtime</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>./</outputDirectory>
+            <directoryMode>0770</directoryMode>
+            <fileMode>0770</fileMode>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>*:nifi-resources</include>
+            </includes>
+            <unpack>true</unpack>
+            <unpackOptions>
+                <filtered>true</filtered>
+                <includes>
+                    <include>bin/*</include>
+                </includes>
+            </unpackOptions>
+        </dependencySet>
+
+        <!-- Writes out the docs directory contents -->
+        <dependencySet>
+            <scope>runtime</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>docs/</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>*:nifi-docs</include>
+            </includes>
+            <unpack>true</unpack>
+            <unpackOptions>
+                <filtered>false</filtered>
+                <excludes>
+                    <!-- LICENSE and NOTICE both covered by top-level -->
+                    <exclude>LICENSE</exclude>
+                    <exclude>NOTICE</exclude>
+                </excludes>
+            </unpackOptions>
+        </dependencySet>
+
+        <!-- Write out the python framework contents -->
+        <dependencySet>
+            <scope>runtime</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>python/</outputDirectory>
+            <useStrictFiltering>true</useStrictFiltering>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>*:nifi-python-framework</include>
+            </includes>
+            <unpack>true</unpack>
+            <unpackOptions>
+                <filtered>false</filtered>
+                <excludes>
+                    <!-- LICENSE and NOTICE both covered by top-level -->
+                    <exclude>LICENSE</exclude>
+                    <exclude>NOTICE</exclude>
+                    <exclude>META-INF</exclude>
+                    <exclude>META-INF/**/*</exclude>
+                </excludes>
+            </unpackOptions>
+        </dependencySet>
+
+        <!-- Write out the python api contents -->
+        <dependencySet>
+            <scope>runtime</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>python/api</outputDirectory>
+            <useStrictFiltering>true</useStrictFiltering>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>*:nifi-python-extension-api</include>
+            </includes>
+            <unpack>true</unpack>
+            <unpackOptions>
+                <filtered>false</filtered>
+                <excludes>
+                    <!-- LICENSE and NOTICE both covered by top-level -->
+                    <exclude>LICENSE</exclude>
+                    <exclude>NOTICE</exclude>
+                    <exclude>META-INF</exclude>
+                    <exclude>META-INF/**/*</exclude>
+                </excludes>
+            </unpackOptions>
+        </dependencySet>
+
+        <!-- NAR bundles -->
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.apache.nifi:*:nar</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+    <fileSets>
+        <fileSet>
+            <directory>.</directory>
+            <outputDirectory>extensions</outputDirectory>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+    <files>
+        <file>
+            <source>./README.md</source>
+            <outputDirectory>./</outputDirectory>
+            <destName>README</destName>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>./LICENSE</source>
+            <outputDirectory>./</outputDirectory>
+            <destName>LICENSE</destName>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>./NOTICE</source>
+            <outputDirectory>./</outputDirectory>
+            <destName>NOTICE</destName>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
+        </file>
+    </files>
+</component>
