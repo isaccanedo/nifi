@@ -26,7 +26,7 @@
 [Apache NiFi](https://nifi.apache.org/) is an easy to use, powerful, and
 reliable system to process and distribute data.
 
-## Table of Contents
+### Table of Contents
 
 - [Features](#features)
 - [Requirements](#requirements)
